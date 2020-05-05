@@ -1,0 +1,478 @@
+<style>
+        #test-width {
+            opacity: 0;
+            position: absolute;
+            top: -666;
+            left: -666;
+        }
+
+        #test-width,
+        #container {
+            font-size: 8.0em;
+            font-weight: 500;
+        }
+
+        .speed-reader-container {
+          position: absolute;
+          opacity: 0;
+          top: -666;
+          left: -666;
+        }
+
+        .speed-reader-container.show {
+          position: relative;
+          opacity: 1;
+        }
+
+        #container {
+            color: #333;
+            height: 200px;
+            width: 100%;
+            border-top: 30px solid #333;
+            border-bottom: 30px solid #333;
+            background-color: #f0f0f0;
+            position: relative;
+            line-height: 2;
+        }
+
+        #container::before {
+            position: absolute;
+            top: -15px;
+            left: 285px;
+            background-color: #333;
+            height: 30px;
+            width: 30px;
+            content: " ";
+            transform: rotate(45deg);
+        }
+
+        #container::after {
+            position: absolute;
+            bottom: -15px;
+            left: 285px;
+            background-color: #333;
+            height: 30px;
+            width: 30px;
+            content: " ";
+            transform: rotate(45deg);
+        }
+
+        #center-character {
+            color: #ED1F24;
+        }
+
+        #left-string {
+            color: #666;
+        }
+
+        #right-string {
+            color: #666;
+        }
+
+        #input-text {
+            width: 500px;
+            height: 150px;
+            margin-top: 150px;
+            font-size: 2.0em;
+            display: block;
+            margin: auto;
+            box-sizing: border-box;
+            background-color: #444;
+            color: #222;
+            border: none;
+        }
+
+        .controls {
+            margin-left: 280px;
+            margin-bottom: 30px;
+        }
+        .current-wpm {
+            display: inline-block;
+            position: relative;
+            top: -12px;
+            left: 20px;
+        }
+
+        .below {
+            position: relative;
+            bottom: -10px;
+            left: -20px;
+            font-size: 0.6em;
+        }
+
+        #wpm {
+            font-size: 2.5em;
+            font-weight: 900;
+        }
+
+        .slider {
+            display: inline-block;
+            position: relative;
+            left: 20px;
+            top: -10px;
+        }
+
+        #wpm-slider {
+            -webkit-appearance: none;
+            width: 100%;
+        }
+
+        #wpm-slider:focus {
+            outline: none;
+        }
+
+        #wpm-slider::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 3px;
+            cursor: pointer;
+            background: #222;
+        }
+
+        #wpm-slider::-webkit-slider-thumb {
+            height: 10px;
+            width: 10px;
+            border-radius: 10px;
+            background: #f0f0f0;
+            cursor: pointer;
+            -webkit-appearance: none;
+            margin-top: -4px;
+        }
+
+        #wpm-slider:focus::-webkit-slider-runnable-track {
+            background: #ED1F24;
+        }
+
+        #wpm-slider::-moz-range-track {
+            width: 100%;
+            height: 8.4px;
+            cursor: pointer;
+            animate: 0.2s;
+            box-shadow: 1px 1px 1px #000000, 0px 0px 1px #0d0d0d;
+            background: #3071a9;
+            border-radius: 1.3px;
+            border: 0.2px solid #010101;
+        }
+
+        #wpm-slider::-moz-range-thumb {
+            box-shadow: 1px 1px 1px #000000, 0px 0px 1px #0d0d0d;
+            border: 1px solid #000000;
+            height: 36px;
+            width: 16px;
+            border-radius: 3px;
+            background: #ffffff;
+            cursor: pointer;
+        }
+
+        #wpm-slider::-ms-track {
+            width: 100%;
+            height: 8.4px;
+            cursor: pointer;
+            animate: 0.2s;
+            background: transparent;
+            border-color: transparent;
+            border-width: 16px 0;
+            color: transparent;
+        }
+
+        #wpm-slider::-ms-fill-lower {
+            background: #2a6495;
+            border: 0.2px solid #010101;
+            border-radius: 2.6px;
+            box-shadow: 1px 1px 1px #000000, 0px 0px 1px #0d0d0d;
+        }
+
+        #wpm-slider::-ms-fill-upper {
+            background: #3071a9;
+            border: 0.2px solid #010101;
+            border-radius: 2.6px;
+            box-shadow: 1px 1px 1px #000000, 0px 0px 1px #0d0d0d;
+        }
+
+        #wpm-slider::-ms-thumb {
+            box-shadow: 1px 1px 1px #000000, 0px 0px 1px #0d0d0d;
+            border: 1px solid #000000;
+            height: 36px;
+            width: 16px;
+            border-radius: 3px;
+            background: #ffffff;
+            cursor: pointer;
+        }
+
+        #wpm-slider:focus::-ms-fill-lower {
+            background: #3071a9;
+        }
+
+        #wpm-slider:focus::-ms-fill-upper {
+            background: #367ebd;
+        }
+    </style>
+
+<h1>Book: <%= @book.name %></h1>
+<h2>by <%= @book.author %></h2>
+<h2>Part <%= @part_num %> of <%= @num_parts %></h2>
+
+<% if @part_num > 1 %>
+<%= link_to 'Previous part', show_book_part_path(id: @book.id, part_num: @part_num - 1) %>
+<% end %>
+<% if @part_num < @num_parts %>
+<%= link_to 'Next part', show_book_part_path(id: @book.id, part_num: @part_num + 1) %>
+<% end %>
+
+<p><button id="start-speed-reader">Start speed reader</button></p>
+
+
+<div class="speed-reader-container">
+  <div class="speed-reader">
+    <span id="test-width"></span>
+    <div id="container">
+        <div id="text">
+      <span id="left-string"></span><span id="center-character"></span><span id="right-string"></span>
+        </div>
+    </div>
+
+    <div class="controls">
+          <button id="playpause">Play / pause</div>
+      <div class="current-wpm"><span id="wpm">350</span><span class="below">wpm</span></div>
+      <div class="slider">
+        <input id="wpm-slider" type="range" min="150" max="950" value="350" step="100">
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="paragraphs">
+<% @part_paras.each do |paragraph| %>
+<p><%= paragraph.inner_html.html_safe %></p>
+<% end %>
+</div>
+
+
+<% if @part_num > 1 %>
+<%= link_to 'Previous part', show_book_part_path(id: @book.id, part_num: @part_num - 1) %>
+<% end %>
+<% if @part_num < @num_parts %>
+<%= link_to 'Next part', show_book_part_path(id: @book.id, part_num: @part_num + 1) %>
+<% end %>
+
+<script>
+// At the moment the speed reader takes a long string of text as input
+// But I want it to take paragraph elements and loop through their textContent
+function SpeedReader (paragraphs, startSpeed) {
+  this.init = function () {
+    var self = this;
+    this.currentPlayPosition = 0;
+    this.currentParagraphIndex = 0;
+    this.numParagraphs = paragraphs.length;
+    this.pauseButton = document.getElementById('playpause');
+    this.wpmDisplay = document.getElementById('wpm');
+    this.wpmInput = document.getElementById('wpm-slider');
+    this.pauseButton.addEventListener('click', function (e) {
+      self.togglePlayState();
+    });
+    this.wpmInput.addEventListener('change', function (e) {
+      self.setWpm(e.target.value);
+    });
+    
+    
+  	this.currentSpeed = wpmToMs(startSpeed);
+    
+    self.load();
+  }
+
+  this.setWordQueue = function () {
+    // Array of all words; new lines are replaced with spaces
+    var raw = paragraphs[this.currentParagraphIndex].textContent;
+    raw = raw.replace(/\n/g, ' ').trim();
+    console.log(raw);
+    var wordStrings = raw.split(' ');
+    this.numWords = wordStrings.length;
+    this.wordQueue = generateWords(wordStrings);
+  }
+
+  this.load = function () {
+    this.setWordQueue();
+    this.play(0);
+  }
+
+  this.togglePlayState = function () {
+    if (this.playState == 'playing') {
+      this.pause();
+    } else {
+      this.play();
+    }
+  }
+  
+  this.play = function (playAt) {
+    this.playState = 'playing';
+    this.pauseButton.className = "icon-pause";
+    this.loop();
+  }
+
+  this.nextParagraph = function () {
+    this.currentParagraphIndex++;
+    this.currentPlayPosition = 0;
+    this.setWordQueue();
+  }
+  
+  this.loop = function () {
+    var slide = this.wordQueue[this.currentPlayPosition];
+    this.showSlide(this.currentPlayPosition);
+    if (this.currentPlayPosition < this.numWords - 1) {
+      this.currentPlayPosition++;
+    } else {
+      if (this.currentParagraphIndex < this.numParagraphs - 1) {
+        this.nextParagraph();
+      }
+    }
+    
+    
+    if (this.playState == 'playing') {
+      var self = this;
+      if (slide instanceof Word) {
+        setTimeout(function(){  self.loop(); }, this.currentSpeed);
+      }
+      if (slide instanceof Pause) {
+        setTimeout(function(){ self.loop(); }, slide.duration * this.currentSpeed);
+      }
+    }
+  }
+  
+  this.pause = function (pauseAt) {
+    if (this.playState == 'playing') {
+      this.playState = 'paused';
+      this.pauseButton.className = "icon-play2";
+      this.showSlide(pauseAt);
+    }
+  }
+  
+  this.showSlide = function (index) {
+    var slide = this.wordQueue[index];
+    if (typeof slide !== 'undefined') {
+      slide.write();
+    } else {
+      this.pause(0);
+      return;
+    }
+  }
+  
+  var generateWords = function (wordStrings) {
+    var words = [];
+    wordStrings.forEach(function (word) {
+      words.push(new Word(word));
+      if ('.!?'.indexOf(word.substr(-1)) > -1) {
+        words.push(new Pause('fullstop'));
+        return;
+      }
+      if ('...'.indexOf(word.substr(-3)) > -1) {
+         words.push(new Pause('ellipsis'));
+         return;
+      }
+      if (',:;'.indexOf(word.substr(-1)) > -1) {
+        words.push(new Pause('comma'));
+        return;
+      }
+    })
+    return words;
+  }
+  
+  this.setWpm = function (wpm) {
+    this.currentSpeed = wpmToMs(wpm);
+    this.wpmDisplay.innerText = wpm;
+  }
+  
+  var wpmToMs = function (wpm) {
+    perSecond = Math.round(wpm / 60);
+    return Math.round(1000 / perSecond);
+  }
+  
+  this.init();
+}
+
+// Word class
+function Word (word) {
+  var self = this;
+  // Hidden element for calculations
+  this.testWidth = document.getElementById('test-width');
+  // Elements to write to
+  this.containerEl = document.getElementById('container');
+  this.centerCharEl = document.getElementById('center-character');
+  this.leftStringEl = document.getElementById('left-string');
+  this.rightStringEl = document.getElementById('right-string');
+
+  this.center = self.middle(word);
+  this.centerComponent = word.substr(this.center - 1, 1);
+  this.leftComponent = word.substr(0, this.center - 1);
+  this.rightComponent = word.substr(this.center);
+
+  var leftOffset = function (word) {
+    var leftWidth = self.width(self.leftComponent);
+    console.log(self.leftComponent);
+    var halfWidth = self.width(word.substr(0, self.center));
+    var centerWidth = (halfWidth - leftWidth) / 2;
+    var leftOffset = ~~(300 - (leftWidth + centerWidth)) + 'px';
+    return ~~(300 - (leftWidth + centerWidth)) + 'px';
+  }
+
+  this.containerPaddingLeft = leftOffset(word);
+
+}
+Word.prototype = {
+  middle: function (word) {
+    var length = word.length;
+    if (!length) return null;
+    // Simple center-character calculation
+    // google 'double tilde' 
+    return ~~((length + 1) / 3) + 1;
+  },
+  
+  width: function (string) {
+    // Get the width of the block of text
+    // useful for centering appropriately
+    this.testWidth.textContent = string;
+    console.log(this.testWidth.offsetWidth);
+    return this.testWidth.offsetWidth;
+  },
+
+  write: function () {
+    this.containerEl.style['padding-left'] = this.containerPaddingLeft;
+    this.centerCharEl.textContent = this.centerComponent;
+    this.leftStringEl.textContent = this.leftComponent;
+    this.rightStringEl.textContent = this.rightComponent;
+  }
+}
+
+ window.addEventListener('DOMContentLoaded', function () {
+  var startButton = document.getElementById('start-speed-reader');
+  startButton.addEventListener('click', function() {
+    var paragraphs = document.querySelectorAll('#paragraphs p');
+    var speedReaderDemo = new SpeedReader(paragraphs, 350); // 350 wpm start speed
+    document.querySelector('.speed-reader-container').classList.add('show');
+  });
+ });
+
+function Pause (type) {
+
+  var PauseTypes = {
+    'fullstop': 1.5,
+    'comma': 1,
+    'ellipsis': 3
+  }
+
+  // Elements to write to
+  this.containerEl = document.getElementById('container');
+  this.centerCharEl = document.getElementById('center-character');
+  this.leftStringEl = document.getElementById('left-string');
+  this.rightStringEl = document.getElementById('right-string');
+
+  this.duration = (function (type) {
+    return PauseTypes[type]
+  })(type);
+
+  this.write = function () {
+    // Do nothing. This space would be used to produce
+    // whitespace pauses (by emptying the DOM).
+    return;
+  }
+
+}
+</script>

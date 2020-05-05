@@ -1,0 +1,40 @@
+<p id="notice"><%= notice %></p>
+
+<p>
+  <strong>User:</strong>
+  <%= @book.user_id %>
+</p>
+
+<p>
+  <strong>Name:</strong>
+  <%= @book.name %>
+</p>
+
+<p>
+  <strong>Author:</strong>
+  <%= @book.author %>
+</p>
+
+<p>
+  <strong>EPUB file:</strong>
+  <%= url_for @book.file %>
+</p>
+
+
+<p>
+  <strong>Length:</strong>
+  <%= @book.length %>
+</p>
+
+<p>
+  <strong>Position:</strong>
+  <%= @book.position %>
+</p>
+
+<p>
+  <strong>Started?</strong>
+  <%= @book.started? %>
+</p>
+
+<%= link_to 'Edit', edit_book_path(@book) %> |
+<%= link_to 'Back', books_path %>
